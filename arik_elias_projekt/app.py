@@ -1,43 +1,71 @@
-from flask import Flask
+from flask import Flask, redirect, url_for
 from flask import render_template
 from flask import request
 import users
 
 app = Flask(__name__)
 
-#@app.route("/") #oder dein dein eigener Pfad
-#def hello_world():  # beliebiger Funktionsname
-#    return "Hello world" # Der Text der unter der Route angezeigt wird.
+colors = ["red", "green", "blue"]
 
-#@app.route("/hello/<string:username>")
-#def hello_user(username):
-#    return render_template(
-#        "template.html",
-#        title = "Kästchen Malen",
-#       user = username
-#        )
 
-@app.route("/")
-def startbildschirm():
+
+
+@app.route("/", methods=["GET"])
+def welcome():
     return render_template(
+        "welcome_template.html",
+        title = "Welcome"
+        )
+    
+
+
+@app.route("/login", methods=["GET", "POST"])
+def user_login():
+    if request.method == "GET":
+        return render_template(
+        "login_template.html",
+        title = "Login"
+        )
+    else:
+        username = request.form.get("username")
+        password = request.form.get("password")
+        
+        users.User = users.User.from_db(username)
+        return redirect(url_for("main"))
+
+
+@app.route("/register", methods=["GET", "POST"])
+def user_form():
+    if request.method == "GET":
+        return render_template(
         "template.html",
         title = "Kästchen Malen"
         )
-
-@app.route("/add_user", methods=["GET", "POST"])
-def user_form():
-    if request.method == "GET":
-         return '''<form method="POST">
-                      <div><label>Username: <input type="text" name="username"></label></div>
-                      <div><label>Firstname: <input type="text" name="first_name"></label></div>
-                      <div><label>Lastname: <input type="text" name="last_name"></label></div>
-                      <input type="submit" value="Submit">
-                  </form>'''
     else:
         username = request.form.get("username")
         firstname = request.form.get("first_name")
         lastname = request.form.get("last_name")
-        user = users.User(username, firstname, lastname)
+        password = request.form.get("password")
+        user = users.User(username, firstname, lastname, password)
         user.to_db()
         return f"Benutzer {username} wurde hinzugefügt"
+    
+@app.route("/main", methods=["GET"])
+def main():
+    new_colorindex = 0
+    if "id" in request.args:
+        id = request.args.get("id")
+        colorindex = request.args.get("colorindex")
+        new_colorindex = int(colorindex) + 1
+        
+    
+    return render_template(
+        "main_template.html",
+        title = "Kästchen Malen",
+        color = colors[new_colorindex],
+        colorindex = new_colorindex
+        )
+    
+  
+
         

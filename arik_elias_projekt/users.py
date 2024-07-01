@@ -1,15 +1,17 @@
 import sqlite3
 
 class User:
-    def __init__(self, username, firstname, lastname):
+    def __init__(self, username, firstname, lastname, password, colorindex):
         self.username = username
         self.firstname = firstname
         self.lastname = lastname
+        self.password = password
+        self.colorindex = colorindex
 
     def to_db(self):
         connection = sqlite3.connect("database.db")
         cursor = connection.cursor()
-        sql = f"INSERT INTO users(username, firstname, lastname) VALUES ('{self.username}', '{self.firstname}', '{self.lastname}')"
+        sql = f"INSERT INTO users(username, firstname, lastname, password, colorindex) VALUES ('{self.username}', '{self.firstname}', '{self.lastname}', '{self.password}', '{self.colorindex}')"
         cursor.execute(sql)
         connection.commit()
         connection.close()
@@ -20,10 +22,10 @@ class User:
     def from_db(cls, username):
         connection = sqlite3.connect("database.db") 
         cursor = connection.cursor()
-        sql = f'SELECT username, firstname, lastname FROM users WHERE username = "{username}"'
+        sql = f'SELECT username, firstname, lastname, password, colorindex FROM users WHERE username = "{username}"'
         cursor.execute(sql)
         row = cursor.fetchone()
         connection.close()
-        return User(row[0], row[1], row[2])
+        return User(row[0], row[1], row[2], row[3], row[4])
         
 
